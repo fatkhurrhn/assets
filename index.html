@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Gallery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8">Asset Gallery</h1>
+        
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200 mb-6">
+            <button id="imagesTab" class="py-2 px-4 font-medium text-blue-500 border-b-2 border-blue-500">Images</button>
+            <button id="videosTab" class="py-2 px-4 font-medium text-gray-500">Videos</button>
+        </div>
+        
+        <!-- Images Section -->
+        <div id="imagesSection" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Images will be dynamically inserted here -->
+        </div>
+        
+        <!-- Videos Section -->
+        <div id="videosSection" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Videos will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Base URL for assets
+        const baseUrl = "https://assets-bythur.vercel.app";
+        
+        // Function to fetch image files (simulated in this example)
+        function getImageFiles() {
+            // In a real implementation, you would fetch this from your server
+            // For demo purposes, we'll simulate some image files
+            return [
+                "foto-profile.jpg",
+                "background.png",
+                "logo.svg",
+                "banner.webp",
+                "product-shot.jpg",
+                "team-photo.jpeg"
+            ];
+        }
+        
+        // Function to fetch video files (simulated in this example)
+        function getVideoFiles() {
+            // In a real implementation, you would fetch this from your server
+            // For demo purposes, we'll simulate some video files
+            return [
+                "17.mp4",
+                "tutorial.mp4",
+                "demo.mp4",
+                "presentation.mp4"
+            ];
+        }
+        
+        // Function to create a card for an image
+        function createImageCard(filename) {
+            const imageUrl = `${baseUrl}/img/${filename}`;
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-lg shadow-md overflow-hidden';
+            
+            card.innerHTML = `
+                <div class="h-48 overflow-hidden">
+                    <img src="img/${filename}" alt="${filename}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/300?text=Image+Not+Found'">
+                </div>
+                <div class="p-4">
+                    <div class="text-sm text-gray-600 mb-2 truncate">${filename}</div>
+                    <div class="flex items-center bg-gray-50 rounded">
+                        <input type="text" value="${imageUrl}" class="flex-1 bg-transparent p-2 text-xs truncate" readonly>
+                        <button class="copy-btn p-2 text-gray-500 hover:text-blue-500" data-url="${imageUrl}">
+                            <i class="far fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Function to create a card for a video
+        function createVideoCard(filename) {
+            const videoUrl = `${baseUrl}/vid/${filename}`;
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-lg shadow-md overflow-hidden';
+            
+            card.innerHTML = `
+                <div class="h-48 overflow-hidden bg-black flex items-center justify-center">
+                    <video class="w-full h-full object-contain" controls>
+                        <source src="vid/${filename}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="p-4">
+                    <div class="text-sm text-gray-600 mb-2 truncate">${filename}</div>
+                    <div class="flex items-center bg-gray-50 rounded">
+                        <input type="text" value="${videoUrl}" class="flex-1 bg-transparent p-2 text-xs truncate" readonly>
+                        <button class="copy-btn p-2 text-gray-500 hover:text-blue-500" data-url="${videoUrl}">
+                            <i class="far fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Function to load images
+        function loadImages() {
+            const imagesSection = document.getElementById('imagesSection');
+            imagesSection.innerHTML = '';
+            
+            const imageFiles = getImageFiles();
+            if (imageFiles.length === 0) {
+                imagesSection.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">No images found</p>';
+                return;
+            }
+            
+            imageFiles.forEach(filename => {
+                const card = createImageCard(filename);
+                imagesSection.appendChild(card);
+            });
+        }
+        
+        // Function to load videos
+        function loadVideos() {
+            const videosSection = document.getElementById('videosSection');
+            videosSection.innerHTML = '';
+            
+            const videoFiles = getVideoFiles();
+            if (videoFiles.length === 0) {
+                videosSection.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">No videos found</p>';
+                return;
+            }
+            
+            videoFiles.forEach(filename => {
+                const card = createVideoCard(filename);
+                videosSection.appendChild(card);
+            });
+        }
+        
+        // Function to copy URL to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Show feedback (you could add a toast notification here)
+                console.log('Copied to clipboard:', text);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load initial content
+            loadImages();
+            loadVideos();
+            
+            // Set up tab switching
+            const imagesTab = document.getElementById('imagesTab');
+            const videosTab = document.getElementById('videosTab');
+            const imagesSection = document.getElementById('imagesSection');
+            const videosSection = document.getElementById('videosSection');
+            
+            imagesTab.addEventListener('click', () => {
+                imagesTab.classList.add('text-blue-500', 'border-blue-500');
+                imagesTab.classList.remove('text-gray-500');
+                videosTab.classList.add('text-gray-500');
+                videosTab.classList.remove('text-blue-500', 'border-blue-500');
+                imagesSection.classList.remove('hidden');
+                videosSection.classList.add('hidden');
+            });
+            
+            videosTab.addEventListener('click', () => {
+                videosTab.classList.add('text-blue-500', 'border-blue-500');
+                videosTab.classList.remove('text-gray-500');
+                imagesTab.classList.add('text-gray-500');
+                imagesTab.classList.remove('text-blue-500', 'border-blue-500');
+                videosSection.classList.remove('hidden');
+                imagesSection.classList.add('hidden');
+            });
+            
+            // Set up copy buttons (using event delegation)
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('copy-btn') || e.target.closest('.copy-btn')) {
+                    const button = e.target.classList.contains('copy-btn') ? e.target : e.target.closest('.copy-btn');
+                    const url = button.getAttribute('data-url');
+                    copyToClipboard(url);
+                    
+                    // Visual feedback
+                    const icon = button.querySelector('i');
+                    icon.classList.remove('fa-copy');
+                    icon.classList.add('fa-check');
+                    
+                    setTimeout(() => {
+                        icon.classList.remove('fa-check');
+                        icon.classList.add('fa-copy');
+                    }, 2000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
